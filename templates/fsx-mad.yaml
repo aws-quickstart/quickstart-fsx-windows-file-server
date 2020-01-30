@@ -1,0 +1,119 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This template creates Amazon FSx for Windows File Server into private subnets in separate Availability Zones 
+  inside a VPC and uses AWS Directory Service for Microsoft Active Directory. **WARNING** This template creates Amazon
+  EC2 Windows instance and related resources. You will be billed for the AWS resources
+  used if you create a stack from this template. (qs-1qdmcdqlc)
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - VPCCIDR
+          - VPCID
+      - Label:
+          default: FSx for Windows Configuration
+        Parameters:
+          - ActiveDirectoryId
+          - StorageCapacity
+          - ThroughputCapacity
+          - DomainMembersSG
+    ParameterLabels:
+      ActiveDirectoryId:
+        default: AWS Managed Microsoft AD Id
+      DomainMembersSG:
+        default: Domain Member Security Group ID
+      PrivateSubnet1ID:
+        default: Private Subnet 1 ID
+      PrivateSubnet2ID:
+        default: Private Subnet 2 ID
+      StorageCapacity:
+        default: Storage size in Gigabytes
+      ThroughputCapacity:
+        default: Throughput capacity of FSx file system
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
+      VPCCIDR:
+        default: VPC CIDR
+      VPCID:
+        default: VPC ID
+Parameters:
+  ActiveDirectoryId:
+    Description: ID of the AWS Managed Microsoft AD
+    Type: String
+  PrivateSubnet1ID:
+    Description: ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd)
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: ID of the private subnet 2 in Availability Zone 2 (e.g., subnet-a0246dcd)
+    Type: AWS::EC2::Subnet::Id
+  StorageCapacity:
+    Default: 32
+    Description: The storage capacity of the file system being created, valid values are 32 GiB - 65,536 GiB.
+      The default is set to the minimum value, but consider a high value for greater capacity. 
+    Type: Integer
+  ThroughputCapacity:
+    Default: 8
+    Description: The throughput of an Amazon FSx file system, minimum value is 8 and maximum value is 2048. 
+      The default is set to the minimum value, but consider a higher value for better performance.
+    Type: Integer
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR Block for the VPC
+    Type: String
+  VPCID:
+    Description: ID of the VPC (e.g., vpc-0343606e)
+    Type: AWS::EC2::VPC::Id
+Resources:
+  FSxSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref DemoVPC
+      GroupDescription: Security Group for FSx for Windows File Storage Access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '135'
+          ToPort: '135'
+          CidrIp: !Ref VPCCIDR
+        - IpProtocol: udp
+          FromPort: '445'
+          ToPort: '445'
+          CidrIp: !Ref VPCCIDR
+        - IpProtocol: tcp
+          FromPort: '445'
+          ToPort: '445'
+          CidrIp: !Ref VPCCIDR
+        - IpProtocol: tcp
+          FromPort: '1024'
+          ToPort: '65535'
+          CidrIp: !Ref VPCCIDR
+        - IpProtocol: udp
+          FromPort: '1024'
+          ToPort: '65535'
+          CidrIp: !Ref VPCCIDR
+  WindowsFSx:
+    Type: 'AWS::FSx::FileSystem'
+    Properties:
+      FileSystemType: WINDOWS
+      StorageCapacity: !Ref 'StorageCapacity'
+      SubnetIds:
+        - !Ref 'PrivateSubnet1ID'
+        - !Ref 'PrivateSubnet2ID'
+      SecurityGroupIds:
+        - !Ref 'DomainMembersSG'
+        - !Ref 'FSxSecurityGroup'
+      Tags:
+        - Key: Name
+          Value: QSWINFSx1
+      WindowsConfiguration:
+        ActiveDirectoryId: !Ref 'ActiveDirectoryId'
+        DeploymentType: MULTI_AZ_1
+        PreferredSubnetId: !Ref 'PrivateSubnet1ID'
+        ThroughputCapacity: !Ref 'ThroughputCapacity'
+Outputs:
