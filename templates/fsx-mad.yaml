@@ -33,10 +33,6 @@ Metadata:
         default: Storage size in Gigabytes
       ThroughputCapacity:
         default: Throughput capacity of FSx file system
-      QSS3BucketName:
-        default: Quick Start S3 Bucket Name
-      QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
       VPCCIDR:
         default: VPC CIDR
       VPCID:
@@ -44,6 +40,9 @@ Metadata:
 Parameters:
   ActiveDirectoryId:
     Description: ID of the AWS Managed Microsoft AD
+    Type: String
+  DomainMembersSG:
+    Description: Security Group to be able to talk Domain Controllers
     Type: String
   PrivateSubnet1ID:
     Description: ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd)
@@ -55,12 +54,12 @@ Parameters:
     Default: 32
     Description: The storage capacity of the file system being created, valid values are 32 GiB - 65,536 GiB.
       The default is set to the minimum value, but consider a high value for greater capacity. 
-    Type: Integer
+    Type: Number
   ThroughputCapacity:
     Default: 8
     Description: The throughput of an Amazon FSx file system, minimum value is 8 and maximum value is 2048. 
       The default is set to the minimum value, but consider a higher value for better performance.
-    Type: Integer
+    Type: Number
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
@@ -74,28 +73,28 @@ Resources:
   FSxSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
-      VpcId: !Ref DemoVPC
+      VpcId: !Ref VPCID
       GroupDescription: Security Group for FSx for Windows File Storage Access
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '135'
-          ToPort: '135'
+          FromPort: 135
+          ToPort: 135
           CidrIp: !Ref VPCCIDR
         - IpProtocol: udp
-          FromPort: '445'
-          ToPort: '445'
+          FromPort: 445
+          ToPort: 445
           CidrIp: !Ref VPCCIDR
         - IpProtocol: tcp
-          FromPort: '445'
-          ToPort: '445'
+          FromPort: 445
+          ToPort: 445
           CidrIp: !Ref VPCCIDR
         - IpProtocol: tcp
-          FromPort: '1024'
-          ToPort: '65535'
+          FromPort: 1024
+          ToPort: 65535
           CidrIp: !Ref VPCCIDR
         - IpProtocol: udp
-          FromPort: '1024'
-          ToPort: '65535'
+          FromPort: 1024
+          ToPort: 65535
           CidrIp: !Ref VPCCIDR
   WindowsFSx:
     Type: 'AWS::FSx::FileSystem'
@@ -116,4 +115,3 @@ Resources:
         DeploymentType: MULTI_AZ_1
         PreferredSubnetId: !Ref 'PrivateSubnet1ID'
         ThroughputCapacity: !Ref 'ThroughputCapacity'
-Outputs:

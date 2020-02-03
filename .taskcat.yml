@@ -1,0 +1,12 @@
+general:
+  parameters:
+    AvailabilityZones: $[taskcat_genaz_2]
+    DomainAdminPassword: $[taskcat_genpass_16]
+    QSS3BucketName: al-qs-us-east-1
+project:
+  name: fsx-mad
+  regions:
+  - us-east-1
+tests:
+  default:
+    template: ./templates/fsx-master-mad.yaml
