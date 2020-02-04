@@ -13,10 +13,8 @@ Metadata:
           - NumberOfAZs
           - VPCCIDR
           - PrivateSubnet1CIDR
-          - PrivateSubnet1ID
           - PrivateSubnet2CIDR
           - PrivateSubnet3CIDR
-          - PrivateSubnet2ID
           - PublicSubnet1CIDR
           - PublicSubnet2CIDR
           - PublicSubnet3CIDR
@@ -28,6 +26,16 @@ Metadata:
           - DomainAdminPassword
           - ADScenarioType
       - Label:
+          default: AD on EC2 Options
+        Parameters:
+          - ADServer1InstanceType
+          - ADServer1NetBIOSName
+          - ADServer1PrivateIP
+          - ADServer2InstanceType
+          - ADServer2NetBIOSName
+          - ADServer2PrivateIP
+          - KeyPairName
+      - Label:
           default: FSx for Windows Configuration
         Parameters:
           - StorageCapacity
@@ -38,6 +46,18 @@ Metadata:
           - QSS3BucketName
           - QSS3KeyPrefix
     ParameterLabels:
+      ADServer1InstanceType:
+        default: Domain Controller 1 Instance Type
+      ADServer1NetBIOSName:
+        default: Domain Controller 1 NetBIOS Name
+      ADServer1PrivateIP:
+        default: Domain Controller 1 Private IP Address
+      ADServer2InstanceType:
+        default: Domain Controller 2 Instance Type
+      ADServer2NetBIOSName:
+        default: Domain Controller 2 NetBIOS Name
+      ADServer2PrivateIP:
+        default: Domain Controller 2 Private IP Address
       AvailabilityZones:
         default: Availability Zones
       ADScenarioType:
@@ -75,6 +95,62 @@ Metadata:
       VPCCIDR:
         default: VPC CIDR
 Parameters:
+  ADServer1InstanceType:
+    AllowedValues:
+      - t2.large
+      - t3.large
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+    Default: m5.xlarge
+    Description: Amazon EC2 instance type for the first Active Directory instance
+    Type: String
+  ADServer1NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9\-]+'
+    Default: DC1
+    Description: NetBIOS name of the first Active Directory server (up to 15 characters)
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  ADServer1PrivateIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.0.10
+    Description: Fixed private IP for the first Active Directory server located in
+      Availability Zone 1
+    Type: String
+  ADServer2InstanceType:
+    AllowedValues:
+      - t2.large
+      - t3.large
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+    Default: m5.xlarge
+    Description: Amazon EC2 instance type for the second Active Directory instance
+    Type: String
+  ADServer2NetBIOSName:
+    AllowedPattern: '[a-zA-Z0-9\-]+'
+    Default: DC2
+    Description: NetBIOS name of the second Active Directory server (up to 15 characters)
+    MaxLength: '15'
+    MinLength: '1'
+    Type: String
+  ADServer2PrivateIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.32.10
+    Description: Fixed private IP for the second Active Directory server located in
+      Availability Zone 2
+    Type: String
   AvailabilityZones:
     Description: 'List of Availability Zones to use for the subnets in the VPC. Note:
       The logical order is preserved and only 2 AZs are used for this deployment.'
@@ -88,17 +164,13 @@ Parameters:
     Description: 'Select the type of AD DS deployment to use: AWS Directory Service
       for Microsoft AD or managing your own Amazon EC2 AD instances.'
     Type: String
-  ADServer1PrivateIP:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
-    Default: 10.0.0.10
-    Description: Fixed private IP for the first Active Directory server located in
-      Availability Zone 1
-    Type: String
-  ADServer2PrivateIP:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
-    Default: 10.0.32.10
-    Description: Fixed private IP for the second Active Directory server located in
-      Availability Zone 2
+  DomainAdminUser:
+    AllowedPattern: '[a-zA-Z0-9]*'
+    Default: Admin
+    Description: User name for the account that will be added as Domain Administrator.
+      This is separate from the default "Administrator" account
+    MaxLength: '25'
+    MinLength: '5'
     Type: String
   DomainAdminPassword:
     AllowedPattern: (?=^.{6,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
@@ -134,6 +206,18 @@ Parameters:
     Description: The throughput of an Amazon FSx file system, minimum value is 8 and maximum value is 2048. 
       The default is set to the minimum value, but consider a higher value for better performance.
     Type: Number
+  NumberOfAZs:
+    AllowedValues:
+      - '2'
+      - '3'
+    Default: '2'
+    Description: Number of Availability Zones to use in the VPC. This must match your
+      selections in the list of Availability Zones parameter.
+    Type: String
+  KeyPairName:
+    Description: Public/private key pairs allow you to securely connect to your instance
+      after it launches
+    Type: AWS::EC2::KeyPair::KeyName
   PrivateSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
@@ -145,6 +229,10 @@ Parameters:
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.32.0/19
     Description: CIDR block for private subnet 2 located in Availability Zone 2.
+    Type: String
+  PrivateSubnet3CIDR:
+    Default: ''
+    Description: CIDR block for private subnet 3 located in Availability Zone 3.
     Type: String
   PublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
@@ -159,6 +247,11 @@ Parameters:
     Default: 10.0.144.0/20
     Description: CIDR Block for the public DMZ subnet 2 located in Availability Zone
       2
+    Type: String
+  PublicSubnet3CIDR:
+    Default: ''
+    Description: CIDR Block for the public DMZ subnet 3 located in Availability Zone
+      3
     Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -192,6 +285,9 @@ Conditions:
   UseEnterpriseEdition: !Equals
     - !Ref 'ADScenarioType'
     - AWS Directory Service for Microsoft AD (Enterprise Edition)
+  IsThreeAz: !Equals
+    - !Ref 'NumberOfAZs'
+    - '3'
   GovCloudCondition: !Equals
     - !Ref 'AWS::Region'
     - us-gov-west-1
@@ -209,14 +305,21 @@ Resources:
         AvailabilityZones: !Join
           - ','
           - !Ref 'AvailabilityZones'
-        NumberOfAZs: '2'
+        NumberOfAZs: !Ref 'NumberOfAZs'
         PrivateSubnet1ACIDR: !Ref 'PrivateSubnet1CIDR'
         PrivateSubnet2ACIDR: !Ref 'PrivateSubnet2CIDR'
+        PrivateSubnet3ACIDR: !If
+          - IsThreeAz
+          - !Ref 'PrivateSubnet3CIDR'
+          - !Ref 'AWS::NoValue'
         PublicSubnet1CIDR: !Ref 'PublicSubnet1CIDR'
         PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
+        PublicSubnet3CIDR: !If
+          - IsThreeAz
+          - !Ref 'PublicSubnet3CIDR'
+          - !Ref 'AWS::NoValue'
         VPCCIDR: !Ref 'VPCCIDR'
   ADStack:
-    DependsOn: VPCStack
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
