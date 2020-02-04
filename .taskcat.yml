@@ -2,9 +2,9 @@ general:
   parameters:
     AvailabilityZones: $[taskcat_genaz_2]
     DomainAdminPassword: $[taskcat_genpass_16]
-    QSS3BucketName: al-qs-us-east-1
+    QSS3BucketName: $[taskcat_autobucket]
 project:
-  name: fsx-mad
+  name: quickstart-microsoft-fsx
   regions:
   - us-east-1
 tests:

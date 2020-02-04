@@ -26,7 +26,7 @@ Metadata:
           - DomainDNSName
           - DomainNetBIOSName
           - DomainAdminPassword
-          - ADEdition
+          - ADScenarioType
       - Label:
           default: FSx for Windows Configuration
         Parameters:
@@ -40,6 +40,8 @@ Metadata:
     ParameterLabels:
       AvailabilityZones:
         default: Availability Zones
+      ADScenarioType:
+        default: Self-managed AD or AWS Managed AD
       DomainAdminPassword:
         default: Domain Admin Password
       DomainAdminUser:
@@ -77,6 +79,27 @@ Parameters:
     Description: 'List of Availability Zones to use for the subnets in the VPC. Note:
       The logical order is preserved and only 2 AZs are used for this deployment.'
     Type: List<AWS::EC2::AvailabilityZone::Name>
+  ADScenarioType:
+    AllowedValues:
+      - AWS Directory Service for Microsoft AD (Enterprise Edition)
+      - AWS Directory Service for Microsoft AD (Standard Edition)
+      - Microsoft AD on Amazon EC2
+    Default: AWS Directory Service for Microsoft AD (Enterprise Edition)
+    Description: 'Select the type of AD DS deployment to use: AWS Directory Service
+      for Microsoft AD or managing your own Amazon EC2 AD instances.'
+    Type: String
+  ADServer1PrivateIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.0.10
+    Description: Fixed private IP for the first Active Directory server located in
+      Availability Zone 1
+    Type: String
+  ADServer2PrivateIP:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
+    Default: 10.0.32.10
+    Description: Fixed private IP for the second Active Directory server located in
+      Availability Zone 2
+    Type: String
   DomainAdminPassword:
     AllowedPattern: (?=^.{6,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*
     Description: Password for the domain admin user. Must be at least 8 characters
@@ -100,13 +123,6 @@ Parameters:
       versions of Windows e.g. EXAMPLE
     MaxLength: '15'
     MinLength: '1'
-    Type: String
-  ADEdition:
-    AllowedValues:
-      - Standard
-      - Enterprise
-    Default: Enterprise
-    Description: The AWS Microsoft AD edition. Valid values include Standard and Enterprise.
     Type: String
   StorageCapacity:
     Default: 32
@@ -170,6 +186,12 @@ Parameters:
     Description: CIDR Block for the VPC
     Type: String
 Conditions:
+  UseSelfManagedAD: !Equals
+    - !Ref 'ADScenarioType'
+    - Microsoft AD on Amazon EC2
+  UseEnterpriseEdition: !Equals
+    - !Ref 'ADScenarioType'
+    - AWS Directory Service for Microsoft AD (Enterprise Edition)
   GovCloudCondition: !Equals
     - !Ref 'AWS::Region'
     - us-gov-west-1
@@ -198,41 +220,70 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
-        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-activedirectory/templates/ad-3.template
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-microsoft-activedirectory/templates/${QSADTemplate}
         - QSS3Region: !If
             - GovCloudCondition
             - s3-us-gov-west-1
             - s3
-      Parameters:
-        DomainAdminPassword: !Ref 'DomainAdminPassword'
-        DomainDNSName: !Ref 'DomainDNSName'
-        DomainNetBIOSName: !Ref 'DomainNetBIOSName'
-        ADEdition: !Ref 'ADEdition'
-        PrivateSubnet1CIDR: !Ref 'PrivateSubnet1CIDR'
-        PrivateSubnet1ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
-        PrivateSubnet2CIDR: !Ref 'PrivateSubnet2CIDR'
-        PrivateSubnet2ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID'
-        PublicSubnet1CIDR: !Ref 'PublicSubnet1CIDR'
-        PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
-        QSS3BucketName: !Ref 'QSS3BucketName'
-        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
-        VPCCIDR: !Ref 'VPCCIDR'
-        VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
+          QSADTemplate: !If
+            - UseSelfManagedAD
+            - ad-1.template
+            - ad-3.template
+      Parameters: !If
+        - UseSelfManagedAD
+        - ADServer1InstanceType: !Ref 'ADServer1InstanceType'
+          ADServer1NetBIOSName: !Ref 'ADServer1NetBIOSName'
+          ADServer1PrivateIP: !Ref 'ADServer1PrivateIP'
+          ADServer2InstanceType: !Ref 'ADServer2InstanceType'
+          ADServer2NetBIOSName: !Ref 'ADServer2NetBIOSName'
+          ADServer2PrivateIP: !Ref 'ADServer2PrivateIP'
+          DomainAdminPassword: !Ref 'DomainAdminPassword'
+          DomainAdminUser: !Ref 'DomainAdminUser'
+          DomainDNSName: !Ref 'DomainDNSName'
+          DomainNetBIOSName: !Ref 'DomainNetBIOSName'
+          KeyPairName: !Ref 'KeyPairName'
+          PrivateSubnet1ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
+          PrivateSubnet2ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID'
+          QSS3BucketName: !Ref 'QSS3BucketName'
+          QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}submodules/quickstart-microsoft-activedirectory/'
+          VPCCIDR: !Ref 'VPCCIDR'
+          VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
+        - ADEdition: !If 
+            - UseEnterpriseEdition
+            - 'Enterprise'
+            - 'Standard'
+          DomainAdminPassword: !Ref 'DomainAdminPassword'
+          DomainDNSName: !Ref 'DomainDNSName'
+          DomainNetBIOSName: !Ref 'DomainNetBIOSName'
+          PrivateSubnet1CIDR: !Ref 'PrivateSubnet1CIDR'
+          PrivateSubnet1ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
+          PrivateSubnet2CIDR: !Ref 'PrivateSubnet2CIDR'
+          PrivateSubnet2ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID'
+          PublicSubnet1CIDR: !Ref 'PublicSubnet1CIDR'
+          PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
+          QSS3BucketName: !Ref 'QSS3BucketName'
+          QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}submodules/quickstart-microsoft-activedirectory/'
+          VPCCIDR: !Ref 'VPCCIDR'
+          VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
   FSxStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
-        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/fsx-mad.yaml
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/windows-fsx.yaml
         - QSS3Region: !If
             - GovCloudCondition
             - s3-us-gov-west-1
             - s3
       Parameters:
         ActiveDirectoryId: !GetAtt 'ADStack.Outputs.DirectoryID'
+        DNSIP1: !Ref 'ADServer1PrivateIP'
+        DNSIP2: !Ref 'ADServer2PrivateIP'
+        DomainDNSName: !Ref 'DomainDNSName'
+        FSxUserSecretsArn: !GetAtt 'ADStack.Outputs.ADAltUserSecrets'
         DomainMembersSG: !GetAtt 'ADStack.Outputs.DomainMemberSGID'
         PrivateSubnet1ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
         PrivateSubnet2ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID'
         StorageCapacity: !Ref StorageCapacity
         ThroughputCapacity: !Ref ThroughputCapacity
-        VPCCIDR: !Ref 'VPCCIDR'
+        FSxAllowedCIDR: !Ref 'VPCCIDR'
         VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
