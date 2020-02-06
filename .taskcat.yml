@@ -1,0 +1,27 @@
+general:
+  parameters:
+    AvailabilityZones: $[taskcat_genaz_2]
+    DomainAdminPassword: $[taskcat_genpass_16]
+    QSS3BucketName: $[taskcat_autobucket]
+    KeyPairName: limakey #$[taskcat_getkeypair]
+project:
+  name: quickstart-microsoft-fsx
+  regions:
+  - us-east-1
+  - us-east-2
+  - us-west-2
+  - eu-west-1
+  - eu-west-2
+  - eu-north-1
+  - ap-southeast-1
+  - ap-southeast-2
+  - ap-northeast-1
+tests:
+  MAD:
+    template: ./templates/fsx-master-mad.yaml
+    parameters:
+      ADScenarioType: AWS Directory Service for Microsoft AD (Standard Edition)
+  SMAD:
+    template: ./templates/fsx-master-mad.yaml
+    parameters:
+      ADScenarioType: Microsoft AD on Amazon EC2
