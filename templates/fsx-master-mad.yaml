@@ -377,16 +377,24 @@ Resources:
             - GovCloudCondition
             - s3-us-gov-west-1
             - s3
-      Parameters:
-        ActiveDirectoryId: !GetAtt 'ADStack.Outputs.DirectoryID'
-        DNSIP1: !Ref 'ADServer1PrivateIP'
-        DNSIP2: !Ref 'ADServer2PrivateIP'
-        DomainDNSName: !Ref 'DomainDNSName'
-        FSxUserSecretsArn: !GetAtt 'ADStack.Outputs.ADAltUserSecrets'
-        DomainMembersSG: !GetAtt 'ADStack.Outputs.DomainMemberSGID'
-        PrivateSubnet1ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
-        PrivateSubnet2ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID'
-        StorageCapacity: !Ref StorageCapacity
-        ThroughputCapacity: !Ref ThroughputCapacity
-        FSxAllowedCIDR: !Ref 'VPCCIDR'
-        VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
+      Parameters: !If
+        - UseSelfManagedAD
+        - DNSIP1: !Ref 'ADServer1PrivateIP'
+          DNSIP2: !Ref 'ADServer2PrivateIP'
+          DomainDNSName: !Ref 'DomainDNSName'
+          FSxUserSecretsArn: !GetAtt 'ADStack.Outputs.ADSecretsArn'
+          DomainMembersSG: !GetAtt 'ADStack.Outputs.DomainMemberSGID'
+          PrivateSubnet1ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
+          PrivateSubnet2ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID'
+          StorageCapacity: !Ref StorageCapacity
+          ThroughputCapacity: !Ref ThroughputCapacity
+          FSxAllowedCIDR: !Ref 'VPCCIDR'
+          VPCID: !GetAtt 'VPCStack.Outputs.VPCID'
+        - ActiveDirectoryId: !GetAtt 'ADStack.Outputs.DirectoryID'
+          DomainMembersSG: !GetAtt 'ADStack.Outputs.DomainMemberSGID'
+          PrivateSubnet1ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
+          PrivateSubnet2ID: !GetAtt 'VPCStack.Outputs.PrivateSubnet2AID'
+          StorageCapacity: !Ref StorageCapacity
+          ThroughputCapacity: !Ref ThroughputCapacity
+          FSxAllowedCIDR: !Ref 'VPCCIDR'
+          VPCID: !GetAtt 'VPCStack.Outputs.VPCID'

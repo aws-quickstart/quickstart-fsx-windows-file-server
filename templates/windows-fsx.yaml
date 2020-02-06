@@ -92,6 +92,7 @@ Parameters:
     Type: String
   FSxUserSecretsArn:
     Description: Arn or secret name of secret in Secrets Manager for FSx to join your AD domain.
+    Default: ''
     Type: String
   FileSystemAdminGroup:
     Description: (Optional) The domain group to which you want to delegate authority to 
@@ -227,7 +228,7 @@ Resources:
         - !Ref 'FSxSecurityGroup'
       Tags:
         - Key: Name
-          Value: QSWINFSx1
+          Value: QSWINFSx
       WindowsConfiguration: !If
         - UseAWSDirectoryService
         - ActiveDirectoryId: !Ref 'ActiveDirectoryId'
