@@ -15,10 +15,15 @@ Metadata:
       - Label:
           default: FSx for Windows Configuration
         Parameters:
+          - BackupRetention
+          - DailyBackupTime
           - StorageCapacity
           - ThroughputCapacity
           - DomainMembersSG
           - FSxAllowedCIDR
+          - FSxEncryptionKey
+          - FSxExistingKeyID
+          - WeeklyMaintenanceTime
       - Label:
           default: AWS Directory Service for Managed AD settings for FSx
         Parameters:
@@ -35,6 +40,10 @@ Metadata:
     ParameterLabels:
       ActiveDirectoryId:
         default: AWS Managed Microsoft AD Id
+      BackupRetention:
+        default: Automated backup retention
+      DailyBackupTime:
+        default: Daily backup start time
       DNSIP1:
         default: IP address of DNS Server
       DNSIP2:
@@ -47,6 +56,10 @@ Metadata:
         default: AWS Secrets Manager secret Arn or name.
       FileSystemAdminGroup:
         default: Domain Group name
+      FSxEncryptionKey:
+        default: The type of KMS key used by FSx.
+      FSxExistingKeyID:
+        default: If Usekey is chosen must specify KMS Key Id
       DomainMembersSG:
         default: Domain Member Security Group ID
       PrivateSubnet1ID:
@@ -61,10 +74,22 @@ Metadata:
         default: CIDR ranged allowed to connect to FSx file system
       VPCID:
         default: VPC ID
+      WeeklyMaintenanceTime:
+        default: Weekly maintenance start time
 Parameters:
   ActiveDirectoryId:
     Description: ID of the AWS Managed Microsoft AD, this can be left blank if not using AWS Managed Microsoft AD, but required if your are.
     Default: '' 
+    Type: String
+  BackupRetention:
+    Description: The number of days to retain automatic backups. The default is to retain backups for 7 days. 
+      Setting this value to 0 disables the creation of automatic backups. The maximum retention period 
+      for backups is 35 days. 
+    Default: 7
+    Type: Number
+  DailyBackupTime:
+    Description: The preferred time to take daily automatic backups, formatted HH:MM in the UTC time zone 
+    Default: '01:00'
     Type: String
   DNSIP1:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
@@ -84,6 +109,19 @@ Parameters:
       if not using self-managed AD, but required if your are. Domain name must not be in the 
       Single Label Domain (SLD) format. e.g. example.com
     Default: example.com 
+    Type: String
+  FSxEncryptionKey:
+    AllowedValues:
+      - 'Default'
+      - 'GenerateKey'
+      - 'UseKey'
+    Description: Use the default KMS key for FSx, Generate a Key or use an existing key for encryption at rest
+      of the Amazon FSx for Windows file system 
+    Default: 'Default'
+    Type: String
+  FSxExistingKeyID:
+    Description: If you chose the option to use an existing key, you must specify the KMS Key ID you want to use. 
+    Default: ''
     Type: String
   OrgUnitDN:
     Description: (Optional) The Organizational Unit (OU) Distinguished Name (DN) in your domain in which 
@@ -127,6 +165,10 @@ Parameters:
   VPCID:
     Description: ID of the VPC (e.g., vpc-0343606e)
     Type: AWS::EC2::VPC::Id
+  WeeklyMaintenanceTime:
+     Description: The preferred start time to perform weekly maintenance, formatted d:HH:MM in the UTC time zone
+     Default: '7:02:00'
+     Type: String
 Conditions:
   UseAWSDirectoryService: !Not
     - !Equals
@@ -140,7 +182,65 @@ Conditions:
     - !Equals
       - ''
       - !Ref 'OrgUnitDN'
+  HasKey: !Equals
+      - 'UseKey'
+      - !Ref 'FSxEncryptionKey'
+  CreateKey: !Equals
+      - 'GenerateKey'
+      - !Ref 'FSxEncryptionKey'
+  UseNonDefault: !Not
+    - !Equals
+      - 'Default'
+      - !Ref 'FSxEncryptionKey'
 Resources:
+  FSxKMSKey:
+    Condition: CreateKey
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Type: AWS::KMS::Key
+    Properties:
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: !Ref AWS::StackName
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/fsx.amazonaws.com/AWSServiceRoleForAmazonFSx'
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+              - 'kms:ReEncrypt*'
+              - 'kms:GenerateDataKey*'
+              - 'kms:DescribeKey'
+            Resource: '*'
+          - Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/fsx.amazonaws.com/AWSServiceRoleForAmazonFSx'
+            Action:
+              - 'kms:CreateGrant'
+              - 'kms:ListGrants'
+              - 'kms:RevokeGrant'
+            Resource: '*'
+            Condition:
+              Bool:
+                'kms:GrantIsForAWSResource': 'true'
+      Tags:
+        - Key: Name
+          Value: !Ref AWS::StackName
+  FSxKeyAlias:
+    Condition: CreateKey
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub "alias/${AWS::StackName}"
+      TargetKeyId: !Ref FSxEncryptionKey
   FSxSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -219,6 +319,13 @@ Resources:
     Type: 'AWS::FSx::FileSystem'
     Properties:
       FileSystemType: WINDOWS
+      KmsKeyId: !If
+        - UseNonDefault
+        - !If
+          - HasKey
+          - !Ref 'FSxExistingKeyID'
+          - !Ref 'FSxKMSKey'
+        - !Ref 'AWS::NoValue'
       StorageCapacity: !Ref 'StorageCapacity'
       SubnetIds:
         - !Ref 'PrivateSubnet1ID'
@@ -232,10 +339,16 @@ Resources:
       WindowsConfiguration: !If
         - UseAWSDirectoryService
         - ActiveDirectoryId: !Ref 'ActiveDirectoryId'
+          WeeklyMaintenanceStartTime: !Ref 'WeeklyMaintenanceTime'
+          DailyAutomaticBackupStartTime: !Ref 'DailyBackupTime'
+          AutomaticBackupRetentionDays: !Ref 'BackupRetention'
           DeploymentType: MULTI_AZ_1
           PreferredSubnetId: !Ref 'PrivateSubnet1ID'
           ThroughputCapacity: !Ref 'ThroughputCapacity'
-        - DeploymentType: MULTI_AZ_1
+        - WeeklyMaintenanceStartTime: !Ref 'WeeklyMaintenanceTime'
+          DailyAutomaticBackupStartTime: !Ref 'DailyBackupTime'
+          AutomaticBackupRetentionDays: !Ref 'BackupRetention'
+          DeploymentType: MULTI_AZ_1
           PreferredSubnetId: !Ref 'PrivateSubnet1ID'
           ThroughputCapacity: !Ref 'ThroughputCapacity'
           SelfManagedActiveDirectoryConfiguration:
@@ -261,3 +374,10 @@ Resources:
               - - '{{resolve:secretsmanager:'
                 - !Ref FSxUserSecretsArn
                 - ':SecretString:password}}'
+Outputs:
+  FSxFileSystemID:
+    Description: File System ID for FSx for Windows File Server
+    Value: !Ref 'WindowsFSx'
+  WindowsFSxSGID:
+    Value: !Ref 'FSxSecurityGroup'
+    Description: FSx for Windows File Server Security Group ID
