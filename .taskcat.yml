@@ -26,3 +26,8 @@ tests:
     template: ./templates/fsx-master-mad.yaml
     parameters:
       ADScenarioType: Microsoft AD on Amazon EC2
+  GenKey:
+    template: ./templates/fsx-master-mad.yaml
+    parameters:
+      ADScenarioType: AWS Directory Service for Microsoft AD (Standard Edition)
+      FSxEncryptionKey: GenerateKey

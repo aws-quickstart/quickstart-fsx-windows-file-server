@@ -240,7 +240,7 @@ Resources:
     Type: AWS::KMS::Alias
     Properties:
       AliasName: !Sub "alias/${AWS::StackName}"
-      TargetKeyId: !Ref FSxEncryptionKey
+      TargetKeyId: !Ref FSxKMSKey
   FSxSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
