@@ -22,7 +22,7 @@
     {
         "ParameterKey": "FSxEncryptionKey",
         "ParameterValue": "GenerateKey"
-    }
+    },
     {
         "ParameterKey": "QSS3BucketName",
         "ParameterValue": "$[taskcat_autobucket]"
