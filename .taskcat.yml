@@ -6,7 +6,7 @@ general:
     KeyPairName: $[taskcat_getkeypair]
     RDGWCIDR: 0.0.0.0/0
 project:
-  name: quickstart-microsoft-fsx
+  name: quickstart-fsx-windows-file-server
   regions:
   - us-east-1
   - us-east-2
