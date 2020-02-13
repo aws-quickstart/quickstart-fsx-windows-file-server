@@ -1,0 +1,30 @@
+[
+    {
+        "ParameterKey": "ADScenarioType",
+        "ParameterValue": "AWS Directory Service for Microsoft AD (Standard Edition)"
+    },
+    {
+        "ParameterKey": "RDGWCIDR",
+        "ParameterValue": "0.0.0.0/0"
+    },
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": "$[taskcat_getkeypair]"
+    },
+    {
+        "ParameterKey": "DomainAdminPassword",
+        "ParameterValue": "$[taskcat_genpass_16]"
+    },
+    {
+        "ParameterKey": "AvailabilityZones",
+        "ParameterValue": "$[taskcat_genaz_2]"
+    },
+    {
+        "ParameterKey": "FSxEncryptionKey",
+        "ParameterValue": "GenerateKey"
+    }
+    {
+        "ParameterKey": "QSS3BucketName",
+        "ParameterValue": "$[taskcat_autobucket]"
+    }
+]
