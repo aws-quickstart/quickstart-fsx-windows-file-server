@@ -25,7 +25,7 @@ Metadata:
           - FSxExistingKeyID
           - WeeklyMaintenanceTime
       - Label:
-          default: AWS Directory Service for Managed AD settings for FSx
+          default: AWS Managed Microsoft AD settings for FSx
         Parameters:
           - ActiveDirectoryId
       - Label:
@@ -78,8 +78,7 @@ Metadata:
         default: Weekly maintenance start time
 Parameters:
   ActiveDirectoryId:
-    Description: Specify the ID of the AWS Managed Microsoft AD, this can be left blank if not using AWS Managed Microsoft AD, 
-     but required if your are using AWS Managed Microsoft AD.
+    Description: Enter the ID of the AWS Managed Microsoft AD. If you are using self-managed Active Directory, leave this blank.
     Default: '' 
     Type: String
   BackupRetention:
@@ -116,8 +115,8 @@ Parameters:
       - 'Default'
       - 'GenerateKey'
       - 'UseKey'
-    Description: Specify the default KMS key for FSx, Generate a Key or use an existing key for encryption at rest
-      of the Amazon FSx for Windows file system 
+    Description: Use the default AWS Key Management Service (AWS KMS) key for Amazon FSx, choose GenerateKey to create a key, 
+      or choose UseKey to use an existing key for encryption at rest on the Amazon FSx for Windows file system. 
     Default: 'Default'
     Type: String
   FSxExistingKeyID:
@@ -140,7 +139,7 @@ Parameters:
     Default: '' 
     Type: String
   DomainMembersSG:
-    Description: Specify the Security Group to be able to talk Domain Controllers
+    Description: Specify the ID of the security group that can exchange information with the domain controllers. 
     Type: String
   PrivateSubnet1ID:
     Description: Choose the ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd)
@@ -150,13 +149,13 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
   StorageCapacity:
     Default: 32
-    Description: Specify the storage capacity of the file system being created, valid values are 32 GiB - 65,536 GiB.
-      The default is set to the minimum value, but consider a high value for greater capacity. 
+    Description: Specify the storage capacity of the file system being created, in gigibytes. 
+      Valid values are 32 GiB - 65,536 GiB. Consider choosing a higher value for greater capacity.
     Type: Number
   ThroughputCapacity:
     Default: 8
-    Description: Specify the throughput of an Amazon FSx file system, minimum value is 8 and maximum value is 2048. 
-      The default is set to the minimum value, but consider a higher value for better performance.
+    Description: Specify the throughput of the Amazon FSx file system. Valid values are 8 -  2048. 
+      Consider choosing a higher value for better performance.
     Type: Number
   FSxAllowedCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
