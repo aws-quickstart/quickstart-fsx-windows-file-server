@@ -86,6 +86,8 @@ Metadata:
         default: Domain DNS Name
       DomainNetBIOSName:
         default: Domain NetBIOS Name
+      KeyPairName:
+        default: Key pair name
       FSxEncryptionKey:
         default: The type of KMS key used by FSx.
       FSxExistingKeyID:
