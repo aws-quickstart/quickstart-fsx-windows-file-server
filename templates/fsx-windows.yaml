@@ -78,34 +78,35 @@ Metadata:
         default: Weekly maintenance start time
 Parameters:
   ActiveDirectoryId:
-    Description: ID of the AWS Managed Microsoft AD, this can be left blank if not using AWS Managed Microsoft AD, but required if your are.
+    Description: Specify the ID of the AWS Managed Microsoft AD, this can be left blank if not using AWS Managed Microsoft AD, 
+     but required if your are using AWS Managed Microsoft AD.
     Default: '' 
     Type: String
   BackupRetention:
-    Description: The number of days to retain automatic backups. The default is to retain backups for 7 days. 
+    Description: Specify the number of days to retain automatic backups. The default is to retain backups for 7 days. 
       Setting this value to 0 disables the creation of automatic backups. The maximum retention period 
       for backups is 35 days. 
     Default: 7
     Type: Number
   DailyBackupTime:
-    Description: The preferred time to take daily automatic backups, formatted HH:MM in the UTC time zone 
+    Description: Specify the preferred time to take daily automatic backups, formatted HH:MM in the UTC time zone 
     Default: '01:00'
     Type: String
   DNSIP1:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
-    Description: First DNS IP address needed for self-managed Active Directory Scenario.This can be left blank 
+    Description: Specify the first DNS IP address needed for self-managed Active Directory Scenario.This can be left blank 
       if not using self-managed AD, but required if your are. e.g. 10.0.0.1
     Default: '10.0.0.10' 
     Type: String
   DNSIP2:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$
-    Description: Second DNS IP address needed for self-managed Active Directory Scenario. This can be left blank 
+    Description: Specify the second DNS IP address needed for self-managed Active Directory Scenario. This can be left blank 
       if not using self-managed AD, but required if your are. e.g. 10.0.0.1
     Default: '10.0.32.10' 
     Type: String
   DomainDNSName:
     AllowedPattern: '[a-zA-Z0-9\-]+\..+'
-    Description: Fully qualified domain name (FQDN) of your self-managed directory. This can be left blank 
+    Description: Specify the fully qualified domain name (FQDN) of your self-managed directory. This can be left blank 
       if not using self-managed AD, but required if your are. Domain name must not be in the 
       Single Label Domain (SLD) format. e.g. example.com
     Default: example.com 
@@ -115,7 +116,7 @@ Parameters:
       - 'Default'
       - 'GenerateKey'
       - 'UseKey'
-    Description: Use the default KMS key for FSx, Generate a Key or use an existing key for encryption at rest
+    Description: Specify the default KMS key for FSx, Generate a Key or use an existing key for encryption at rest
       of the Amazon FSx for Windows file system 
     Default: 'Default'
     Type: String
@@ -124,49 +125,49 @@ Parameters:
     Default: ''
     Type: String
   OrgUnitDN:
-    Description: (Optional) The Organizational Unit (OU) Distinguished Name (DN) in your domain in which 
+    Description: (Optional) Specify the Organizational Unit (OU) Distinguished Name (DN) in your domain in which 
       you want your file system to be joined e.g. 'OU=FileSystems,DC=corp,DC=example,DC=com'
     Default: ''
     Type: String
   FSxUserSecretsArn:
-    Description: Arn or secret name of secret in Secrets Manager for FSx to join your AD domain.
+    Description: Specify the Arn or secret name of secret in Secrets Manager for FSx to join your AD domain.
     Default: ''
     Type: String
   FileSystemAdminGroup:
-    Description: (Optional) The domain group to which you want to delegate authority to 
+    Description: (Optional) Specify the domain group to which you want to delegate authority to 
       perform administrative actions on your file system. If you don’t specify this group, Amazon FSx delegates 
       this authority to the Domain Admins group in your AD domain by default.
     Default: '' 
     Type: String
   DomainMembersSG:
-    Description: Security Group to be able to talk Domain Controllers
+    Description: Specify the Security Group to be able to talk Domain Controllers
     Type: String
   PrivateSubnet1ID:
-    Description: ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd)
+    Description: Choose the ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd)
     Type: AWS::EC2::Subnet::Id
   PrivateSubnet2ID:
-    Description: ID of the private subnet 2 in Availability Zone 2 (e.g., subnet-a0246dcd)
+    Description: Choose the ID of the private subnet 2 in Availability Zone 2 (e.g., subnet-a0246dcd)
     Type: AWS::EC2::Subnet::Id
   StorageCapacity:
     Default: 32
-    Description: The storage capacity of the file system being created, valid values are 32 GiB - 65,536 GiB.
+    Description: Specify the storage capacity of the file system being created, valid values are 32 GiB - 65,536 GiB.
       The default is set to the minimum value, but consider a high value for greater capacity. 
     Type: Number
   ThroughputCapacity:
     Default: 8
-    Description: The throughput of an Amazon FSx file system, minimum value is 8 and maximum value is 2048. 
+    Description: Specify the throughput of an Amazon FSx file system, minimum value is 8 and maximum value is 2048. 
       The default is set to the minimum value, but consider a higher value for better performance.
     Type: Number
   FSxAllowedCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Description: CIDR block that is allowed access to FSx
+    Description: Specify the CIDR block that is allowed access to FSx
     Type: String
   VPCID:
-    Description: ID of the VPC (e.g., vpc-0343606e)
+    Description: Choose the ID of the VPC (e.g., vpc-0343606e)
     Type: AWS::EC2::VPC::Id
   WeeklyMaintenanceTime:
-     Description: The preferred start time to perform weekly maintenance, formatted d:HH:MM in the UTC time zone
+     Description: Specify the preferred start time to perform weekly maintenance, formatted d:HH:MM in the UTC time zone
      Default: '7:02:00'
      Type: String
 Conditions:
