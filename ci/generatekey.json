@@ -1,7 +1,7 @@
 [
     {
         "ParameterKey": "ADScenarioType",
-        "ParameterValue": "AWS Directory Service for Microsoft AD (Standard Edition)"
+        "ParameterValue": "AWS Managed Microsoft AD(Standard Edition)"
     },
     {
         "ParameterKey": "RDGWCIDR",

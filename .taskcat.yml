@@ -21,7 +21,7 @@ tests:
   MAD:
     template: ./templates/fsx-windows-master.yaml
     parameters:
-      ADScenarioType: AWS Directory Service for Microsoft AD (Standard Edition)
+      ADScenarioType: AWS Managed Microsoft AD(Standard Edition)
   SMAD:
     template: ./templates/fsx-windows-master.yaml
     parameters:
@@ -29,5 +29,5 @@ tests:
   GenKey:
     template: ./templates/fsx-windows-master.yaml
     parameters:
-      ADScenarioType: AWS Directory Service for Microsoft AD (Standard Edition)
+      ADScenarioType: AWS Managed Microsoft AD(Standard Edition)
       FSxEncryptionKey: GenerateKey
