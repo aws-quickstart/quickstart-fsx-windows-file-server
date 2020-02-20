@@ -238,7 +238,7 @@ Parameters:
     Type: String
   StorageCapacity:
     Default: 32
-    Description: Specify the storage capacity of the file system being created, in gigibytes. 
+    Description: Specify the storage capacity of the file system being created, in gibibytes. 
       Valid values are 32 GiB - 65,536 GiB. Consider choosing a higher value for greater capacity.
     Type: Number
   ThroughputCapacity:
