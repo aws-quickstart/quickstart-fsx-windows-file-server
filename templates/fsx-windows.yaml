@@ -211,27 +211,20 @@ Resources:
             Resource: '*'
           - Effect: Allow
             Principal:
-              AWS:
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/fsx.amazonaws.com/AWSServiceRoleForAmazonFSx'
+              AWS: '*'
             Action:
               - 'kms:Encrypt'
               - 'kms:Decrypt'
               - 'kms:ReEncrypt*'
               - 'kms:GenerateDataKey*'
-              - 'kms:DescribeKey'
-            Resource: '*'
-          - Effect: Allow
-            Principal:
-              AWS:
-                - !Sub 'arn:aws:iam::${AWS::AccountId}:role/aws-service-role/fsx.amazonaws.com/AWSServiceRoleForAmazonFSx'
-            Action:
               - 'kms:CreateGrant'
               - 'kms:ListGrants'
-              - 'kms:RevokeGrant'
+              - 'kms:DescribeKey'
             Resource: '*'
             Condition:
-              Bool:
-                'kms:GrantIsForAWSResource': 'true'
+              StringEquals:
+                kms:ViaService: !Sub 'fsx.${AWS::Region}.amazonaws.com'
+                kms:CallerAccount: !Sub '${AWS::AccountId}'
       Tags:
         - Key: Name
           Value: !Ref AWS::StackName
