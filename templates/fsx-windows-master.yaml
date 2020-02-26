@@ -252,11 +252,7 @@ Parameters:
       - 'GenerateKey'
       - 'UseKey'
     Description: Use the default AWS Key Management Service (AWS KMS) key for Amazon FSx, choose GenerateKey to create a key, 
-<<<<<<< HEAD
-      or choose UseKey to use an existing key for encryption at rest on the Amazon FSx for Windows file system. 
-=======
       or choose UseKey to use an existing key for encryption at rest on the Amazon FSx for Windows File Server file system. 
->>>>>>> 4ab0de53ce7f0b802fbf241b7c078dcf0f5ff483
     Default: 'Default'
     Type: String
   FSxExistingKeyID:
@@ -336,11 +332,7 @@ Parameters:
       - m5.4xlarge
   RDGWCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-<<<<<<< HEAD
-    Description: Specify the Allowed CIDR Block that can access to the Remote Desktop Gateway instances
-=======
     Description: Specify the allowed CIDR block that can access the RD Gateway instances.
->>>>>>> 4ab0de53ce7f0b802fbf241b7c078dcf0f5ff483
     Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
