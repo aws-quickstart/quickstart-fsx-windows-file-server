@@ -297,6 +297,10 @@ Resources:
           ToPort: 3269
           CidrIp: !Ref FSxAllowedCIDR
         - IpProtocol: tcp
+          FromPort: 5985
+          ToPort: 5985
+          CidrIp: !Ref FSxAllowedCIDR
+        - IpProtocol: tcp
           FromPort: 9389
           ToPort: 9389
           CidrIp: !Ref FSxAllowedCIDR
