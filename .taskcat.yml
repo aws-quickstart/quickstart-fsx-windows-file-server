@@ -3,6 +3,7 @@ general:
     AvailabilityZones: $[taskcat_genaz_2]
     DomainAdminPassword: $[taskcat_genpass_16]
     QSS3BucketName: $[taskcat_autobucket]
+    QSS3BucketRegion: $[taskcat_current_region]
     KeyPairName: $[taskcat_getkeypair]
     RDGWCIDR: 0.0.0.0/0
 project:
