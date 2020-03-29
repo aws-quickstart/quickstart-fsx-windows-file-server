@@ -23,12 +23,30 @@ tests:
     template: ./templates/fsx-windows-master.yaml
     parameters:
       ADScenarioType: AWS Managed Microsoft AD(Standard Edition)
+      AvailabilityZones: $[taskcat_genaz_2]
+      RDGWCIDR: 0.0.0.0/0
+      KeyPairName: $[taskcat_getkeypair]
+      DomainAdminPassword: $[taskcat_genpass_16]
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: $[taskcat_current_region]
   SMAD:
     template: ./templates/fsx-windows-master.yaml
     parameters:
       ADScenarioType: Microsoft AD on Amazon EC2
+      AvailabilityZones: $[taskcat_genaz_2]
+      RDGWCIDR: 0.0.0.0/0
+      KeyPairName: $[taskcat_getkeypair]
+      DomainAdminPassword: $[taskcat_genpass_16]
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: $[taskcat_current_region]
   GenKey:
     template: ./templates/fsx-windows-master.yaml
     parameters:
       ADScenarioType: AWS Managed Microsoft AD(Standard Edition)
       FSxEncryptionKey: GenerateKey
+      AvailabilityZones: $[taskcat_genaz_2]
+      RDGWCIDR: 0.0.0.0/0
+      KeyPairName: $[taskcat_getkeypair]
+      DomainAdminPassword: $[taskcat_genpass_16]
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3BucketRegion: $[taskcat_current_region]
