@@ -27,6 +27,14 @@ tests:
       DomainAdminPassword: $[taskcat_genpass_16]
       QSS3BucketName: $[taskcat_autobucket]
       QSS3BucketRegion: $[taskcat_current_region]
+    regions:
+    - us-east-1
+    - us-east-2
+    - us-west-2
+    - eu-west-1
+    - eu-west-2
+    - ap-southeast-1
+    - ap-northeast-1
   SMAD:
     template: ./templates/fsx-windows-master.yaml
     parameters:
@@ -37,6 +45,14 @@ tests:
       DomainAdminPassword: $[taskcat_genpass_16]
       QSS3BucketName: $[taskcat_autobucket]
       QSS3BucketRegion: $[taskcat_current_region]
+    regions:
+    - us-east-1
+    - us-east-2
+    - us-west-2
+    - eu-west-1
+    - eu-west-2
+    - ap-southeast-1
+    - ap-northeast-1
   GenKey:
     template: ./templates/fsx-windows-master.yaml
     parameters:
@@ -48,3 +64,8 @@ tests:
       DomainAdminPassword: $[taskcat_genpass_16]
       QSS3BucketName: $[taskcat_autobucket]
       QSS3BucketRegion: $[taskcat_current_region]
+    regions:
+    - us-east-1
+    - us-east-2
+    - us-west-2
+    - ap-northeast-1
