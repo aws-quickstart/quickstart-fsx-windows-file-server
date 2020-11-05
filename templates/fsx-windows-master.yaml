@@ -439,6 +439,7 @@ Resources:
           ADServer2InstanceType: !Ref 'ADServer2InstanceType'
           ADServer2NetBIOSName: !Ref 'ADServer2NetBIOSName'
           ADServer2PrivateIP: !Ref 'ADServer2PrivateIP'
+          EntCaServerSubnet: !GetAtt 'VPCStack.Outputs.PrivateSubnet1AID'
           DomainAdminPassword: !Ref 'DomainAdminPassword'
           DomainAdminUser: !Ref 'DomainAdminUser'
           DomainDNSName: !Ref 'DomainDNSName'
