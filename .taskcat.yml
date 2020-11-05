@@ -21,6 +21,7 @@ tests:
     parameters:
       ADScenarioType: AWS Managed Microsoft AD(Standard Edition)
       AvailabilityZones: $[taskcat_genaz_2]
+      DeployRDGW: 'No'
       RDGWCIDR: 0.0.0.0/0
       KeyPairName: $[taskcat_getkeypair]
       DomainAdminPassword: $[taskcat_genpass_16]
@@ -38,6 +39,7 @@ tests:
     parameters:
       ADScenarioType: Microsoft AD on Amazon EC2
       AvailabilityZones: $[taskcat_genaz_2]
+      DeployRDGW: 'No'
       RDGWCIDR: 0.0.0.0/0
       KeyPairName: $[taskcat_getkeypair]
       DomainAdminPassword: $[taskcat_genpass_16]
@@ -56,6 +58,7 @@ tests:
       ADScenarioType: AWS Managed Microsoft AD(Standard Edition)
       FSxEncryptionKey: GenerateKey
       AvailabilityZones: $[taskcat_genaz_2]
+      DeployRDGW: 'No'
       RDGWCIDR: 0.0.0.0/0
       KeyPairName: $[taskcat_getkeypair]
       DomainAdminPassword: $[taskcat_genpass_16]

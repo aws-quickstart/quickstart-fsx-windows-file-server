@@ -50,6 +50,7 @@ Metadata:
       - Label:
           default: RD Gateway configuration
         Parameters:
+          - DeployRDGW
           - RDGWInstanceType
           - NumberOfRDGWHosts
           - RDGWCIDR
@@ -78,6 +79,8 @@ Metadata:
         default: Type of Active Directory deployment
       BackupRetention:
         default: Automated backup retention
+      DeployRDGW:
+        default: Deploy RD Gateway
       DailyBackupTime:
         default: Daily backup start time
       DomainAdminPassword:
@@ -204,6 +207,13 @@ Parameters:
       for backups is 35 days. 
     Default: 7
     Type: Number
+  DeployRDGW:
+    Description: Deploy Remote Desktop Gateway
+    Type: String
+    AllowedValues:
+      - 'Yes'
+      - 'No'
+    Default: 'Yes'
   DailyBackupTime:
     Description: Specify the preferred time to take daily automatic backups, formatted HH:MM in the UTC time zone. 
     Default: '01:00'
@@ -387,6 +397,7 @@ Conditions:
     - !Ref 'AWS::Region'
     - us-gov-west-1
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  CreateRDGW: !Equals [!Ref DeployRDGW, 'Yes']
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
@@ -518,6 +529,7 @@ Resources:
           WeeklyMaintenanceTime: !Ref 'WeeklyMaintenanceTime'
   RDGWStack:
     Type: AWS::CloudFormation::Stack
+    Condition: CreateRDGW
     Properties:
       TemplateURL:
         !Sub
