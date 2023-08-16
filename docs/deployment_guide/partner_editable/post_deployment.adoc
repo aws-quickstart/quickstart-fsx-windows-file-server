@@ -1,0 +1,11 @@
+// Include any postdeployment steps here, such as steps necessary to test that the deployment was successful. If there are no postdeployment steps, leave this file empty.
+
+== Postdeployment steps
+
+=== Test the deployment
+
+After the Partner Solution is deployed, you can deploy a single EC2 Windows instance and map it to the file share by following the steps in the https://docs.aws.amazon.com/fsx/latest/WindowsGuide/using-file-shares.html#map-share-windows[Amazon FSx for Windows File Server documentation].
+
+For further information on administering file systems, see the https://docs.aws.amazon.com/fsx/latest/WindowsGuide/administering-file-systems.html[Amazon FSx for Windows File Server documentation].
+
+For more information on security for Amazon FSx for Windows File Server, see the https://docs.aws.amazon.com/fsx/latest/WindowsGuide/security.html[Amazon FSx for Windows File Server documentation].

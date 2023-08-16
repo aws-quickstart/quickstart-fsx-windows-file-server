@@ -1,0 +1,49 @@
+:xrefstyle: short
+
+Deploying this Partner Solution for a new virtual private cloud (VPC) with *default parameters* builds the following FSx for Windows File Server environments in the AWS Cloud, depending on the Active Directory scenario that you choose.
+
+// Replace this example diagram with your own. Follow our wiki guidelines: https://w.amazon.com/bin/view/AWS_Quick_Starts/Process_for_PSAs/#HPrepareyourarchitecturediagram. Upload your source PowerPoint file to the GitHub {deployment name}/docs/images/ directory in its repository.
+
+[#architecture1]
+.Partner Solution architecture for FSx for Windows File Server on AWS with AWS Managed Microsoft AD
+image::../docs/deployment_guide/images/image1.png[Architecture]
+
+=== AWS Managed Microsoft AD
+
+The Partner Solution sets up the following:
+
+* A highly available architecture that spans two Availability Zones*
+* A VPC configured with public and private subnets according to AWS best practices, to provide you with your own virtual network on AWS*
+* In the public subnets:
+
+* Managed NAT gateways to allow outbound internet access for resources in the private subnets*
+* A Remote Desktop Gateway (RD Gateway) host in an Auto Scaling group to allow inbound Remote Desktop Protocol (RDP) access to Amazon Elastic Compute Cloud (Amazon EC2) instances in public and private subnets*
+
+* In the private subnets:
+
+* An AWS Managed Microsoft AD domain*
+* FSx for Windows File Server
+
+[.small]#* The template that deploys the Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
+
+=== Self-managed Active Directory
+
+[#architecture1]
+.Partner Solution architecture for Amazon FSx for Windows File Server on AWS with self-managed Active Directory
+image::../docs/deployment_guide/images/image2.png[Architecture]
+
+The Partner Solution sets up the following:
+
+* A highly available architecture that spans two Availability Zones*
+* A VPC configured with public and private subnets according to AWS best practices, to provide you with your own virtual network on AWS*
+* In the public subnets:
+
+* Managed NAT gateways to allow outbound internet access for resources in the private subnets*
+* An RD Gateway host in an Auto Scaling group to allow inbound RDP access to EC2 instances in public and private subnets.
+
+* In the private subnets:
+
+* Self-managed Active Directory on EC2 instances*
+* FSx for Windows File Server
+
+[.small]#* The template that deploys the Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
