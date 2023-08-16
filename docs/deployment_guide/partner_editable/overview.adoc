@@ -1,0 +1,9 @@
+This guide covers the information you need to deploy Amazon FSx in the AWS Cloud.
+
+This Partner Solution is for IT infrastructure architects, administrators, and DevOps professionals who are planning to implement Microsoft Windows file systems on AWS.
+
+// Deploying this solution does not guarantee an organization’s compliance with any laws, certifications, policies, or other regulations. [Uncomment this statement only for solutions that relate to compliance. We'll add the corresponding reference part to the landing page and get legal approval before publishing.]
+
+// For advanced information about the product, troubleshooting, or additional functionality, refer to the https://{partner-solution-github-org}.github.io/{partner-solution-project-name}/operational/index.html[Operational Guide^].
+
+// For information about using this Partner Solution for migrations, refer to the https://{partner-solution-github-org}.github.io/{partner-solution-project-name}/migration/index.html[Migration Guide^].
